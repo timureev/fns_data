@@ -39,8 +39,8 @@ def download_geocheki(filename, shp):
     ]
 
     grid = gpd.GeoDataFrame({'geometry': polygons}, crs=3857)
-    os.makedirs(f"E:\\Урбаника\\Илья\\2024.12\\geocheki\\geography\\{filename}", exist_ok=True)
-    grid.to_file(f"E:\\Урбаника\\Илья\\2024.12\\geocheki\\geography\\{filename}\\grid_{filename}.shp")
+    os.makedirs(f"\\geography\\{filename}", exist_ok=True)
+    grid.to_file(f"\\geography\\{filename}\\grid_{filename}.shp")
 
     for i, (_, small_poly) in enumerate(grid.iterrows()):
         try:
@@ -73,8 +73,8 @@ def download_geocheki(filename, shp):
                 gdf[f'{col}2'] = gdf[f'properties.{col}'].apply(lambda x: x[1] if isinstance(x, list) else None)
 
             # Сохранение
-            gdf.to_file(f"E:\\Урбаника\\Илья\\2024.12\\geocheki\\geography\\{filename}\\output_geojson\\{filename}_{i}.json", driver="GeoJSON")
-            gdf.to_excel(f"E:\\Урбаника\\Илья\\2024.12\\geocheki\\geography\\{filename}\\output_excel\\{filename}_check_{i}.xlsx")
+            gdf.to_file(f"\\geography\\{filename}\\output_geojson\\{filename}_{i}.json", driver="GeoJSON")
+            gdf.to_excel(f"\\geography\\{filename}\\output_excel\\{filename}_check_{i}.xlsx")
             print(f"Полигон №{i} обработан успешно")
             time.sleep(1)  # Пауза для предотвращения блокировок
         except Exception as e:
@@ -102,7 +102,7 @@ def merge_json_files(directory_path):
 
 
 if __name__ == "__main__":
-    shp_directory_path = "E:\\Урбаника\\Илья\\2024.12\\geocheki\\shp"
+    shp_directory_path = "\\shp"
     for filename in os.listdir(shp_directory_path):
         if filename.endswith('.shp'):
             shp = os.path.join(shp_directory_path, filename)
