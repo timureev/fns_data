@@ -107,7 +107,7 @@ if __name__ == "__main__":
         if filename.endswith('.shp'):
             shp = os.path.join(shp_directory_path, filename)
             download_geocheki(filename.split('.')[0], shp)
-            directory_path = f"E:\\Урбаника\\Илья\\2024.12\\geocheki\\geography\\{filename.split('.')[0]}"
+            directory_path = f"\\geography\\{filename.split('.')[0]}"
             merged_data = merge_json_files(f"{directory_path}\\output_geojson")
             output_file = f"{directory_path}\\merge_json_{current_time}.json"
             with open(output_file, 'w', encoding='utf-8') as outfile:
