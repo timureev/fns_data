@@ -1,10 +1,10 @@
+import os
 import requests
 import pandas as pd
 import json
 import geopandas as gpd
 from shapely.geometry import Polygon, MultiPolygon
 import numpy as np
-import os
 import datetime
 import time
 
@@ -26,7 +26,7 @@ headers = {
 
 def download_geocheki(filename, shp):
     polygon = gpd.read_file(shp)
-    gdf = gpd.GeoDataFrame(polygon, crs=3857)
+    gdf = gpd.GeoDataFrame(polygon, crs="EPSG:3857")
     xmin, ymin, xmax, ymax = gdf.total_bounds
 
     side = 100000
@@ -38,9 +38,9 @@ def download_geocheki(filename, shp):
         for x in cols[:-1] for y in rows[:-1]
     ]
 
-    grid = gpd.GeoDataFrame({'geometry': polygons}, crs=3857)
-    os.makedirs(f"\\geography\\{filename}", exist_ok=True)
-    grid.to_file(f"\\geography\\{filename}\\grid_{filename}.shp")
+    grid = gpd.GeoDataFrame({'geometry': polygons}, crs="EPSG:3857")
+    os.makedirs(os.path.join("geography", filename), exist_ok=True)
+    grid.to_file(os.path.join("geography", filename, f"grid_{filename}.shp"))
 
     for i, (_, small_poly) in enumerate(grid.iterrows()):
         try:
@@ -73,8 +73,10 @@ def download_geocheki(filename, shp):
                 gdf[f'{col}2'] = gdf[f'properties.{col}'].apply(lambda x: x[1] if isinstance(x, list) else None)
 
             # Сохранение
-            gdf.to_file(f"\\geography\\{filename}\\output_geojson\\{filename}_{i}.json", driver="GeoJSON")
-            gdf.to_excel(f"\\geography\\{filename}\\output_excel\\{filename}_check_{i}.xlsx")
+            os.makedirs(os.path.join("geography", filename, "output_geojson"), exist_ok=True)
+            os.makedirs(os.path.join("geography", filename, "output_excel"), exist_ok=True)
+            gdf.to_file(os.path.join("geography", filename, "output_geojson", f"{filename}_{i}.json"), driver="GeoJSON")
+            gdf.to_excel(os.path.join("geography", filename, "output_excel", f"{filename}_check_{i}.xlsx"))
             print(f"Полигон №{i} обработан успешно")
             time.sleep(1)  # Пауза для предотвращения блокировок
         except Exception as e:
@@ -102,13 +104,14 @@ def merge_json_files(directory_path):
 
 
 if __name__ == "__main__":
-    shp_directory_path = "\\shp"
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    shp_directory_path = os.path.join(script_dir, "shp")
     for filename in os.listdir(shp_directory_path):
         if filename.endswith('.shp'):
             shp = os.path.join(shp_directory_path, filename)
             download_geocheki(filename.split('.')[0], shp)
-            directory_path = f"\\geography\\{filename.split('.')[0]}"
-            merged_data = merge_json_files(f"{directory_path}\\output_geojson")
-            output_file = f"{directory_path}\\merge_json_{current_time}.json"
+            directory_path = os.path.join(script_dir, "geography", filename.split('.')[0])
+            merged_data = merge_json_files(os.path.join(directory_path, "output_geojson"))
+            output_file = os.path.join(directory_path, f"merge_json_{current_time}.json")
             with open(output_file, 'w', encoding='utf-8') as outfile:
                 json.dump(merged_data, outfile, ensure_ascii=False)
